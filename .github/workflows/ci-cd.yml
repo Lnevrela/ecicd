@@ -1,0 +1,55 @@
+name: Java CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main  # Trigger pipeline on pushes to the "main" branch
+  pull_request:
+    branches:
+      - main  # Trigger pipeline on pull requests to the "main" branch
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Check out the repository code
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step 2: Set up Java environment
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'  # Use Eclipse Temurin JDK (OpenJDK)
+          java-version: '11'       # Specify Java version (11)
+
+      # Step 3: Cache Maven dependencies
+      - name: Cache Maven dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      # Step 4: Build and test the application
+      - name: Build and test with Maven
+        run: mvn clean verify
+
+  deploy:
+    needs: build-and-test  # Run only if build-and-test job succeeds
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository code
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step 2: Deploy application (replace with your deployment logic)
+      - name: Deploy to server
+        run: |
+          echo "Deploying application..."
+          # Example deployment logic:
+          # scp target/my-java-app.jar user@your-server:/path/to/deploy/
+          # ssh user@your-server "systemctl restart my-java-app"
